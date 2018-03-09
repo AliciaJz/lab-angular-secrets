@@ -23,10 +23,13 @@ authController.post("/signup", (req, res, next) => {
       return;
     }
 
-    let salt     = bcrypt.genSaltSync(bcryptSalt);
-    let hashPass = bcrypt.hashSync(password, salt);
+    // let salt     = bcrypt.genSaltSync(bcryptSalt);
+    // let hashPass = bcrypt.hashSync(password, salt);
+    console.log("entro");
+    let hashPass = bcrypt.hashSync(password, bcrypt.genSaltSync(9), null);
 
-    let newUser  = User({
+
+    let newUser  = new User({
       username,
       password: hashPass,
       name,
@@ -35,17 +38,25 @@ authController.post("/signup", (req, res, next) => {
 
     console.log(newUser);
 
-    newUser.save((err) => {
-      if (err) { res.status(400).json({ message: "Something went wrong" }); }
-      else {
-        req.login(newUser, (err) => {
-          if (err) { return res.status(500).json({ message: "Something went wrong" }); }
-          res.status(200).json(req.user);
-        });
-      }
-    });
-  });
-});
+//     newUser.save((err) => {
+//       if (err) { res.status(400).json({ message: "Something went wrong" }); }
+//       else {
+//         req.login(newUser, (err) => {
+//           if (err) { return res.status(500).json({ message: "Something went wrong" }); }
+//           res.status(200).json(req.user);
+//         });
+//       }
+//     });
+//   });
+// });
+
+newUser.save()
+.then(user => {
+  req.login(user, (err) =>{
+    if (err) { return res.status(500).json({message : "Something went wrong"});}
+  })
+  .catch(err => res.status(400).json({ message: "Something went wrong"})
+})
 
 authController.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {

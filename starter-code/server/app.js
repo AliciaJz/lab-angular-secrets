@@ -11,9 +11,6 @@ const passport       = require("passport");
 
 const app            = express();
 
-// Passport configuration
-require("./config/passport")(passport);
-
 // Mongoose configuration
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/angular-authentication");
@@ -26,9 +23,14 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 2419200000 }
 }));
 
+var corsOptions = {
+  origin: true,
+  credentials: true
+};
+app.use(cors(corsOptions));
+
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // uncomment after placing your favicon in /public
@@ -36,6 +38,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Passport configuration
+require("./config/passport")(passport);
 
 app.use('/api', authController);
 app.all('/*', (req, res) => {
